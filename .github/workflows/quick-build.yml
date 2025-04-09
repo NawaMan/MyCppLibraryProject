@@ -1,0 +1,54 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'plan/**'
+      - '.gitignore'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'plan/**'
+      - '.gitignore'
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, 'Merge pull request') }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ libboost-dev libboost-locale-dev libboost-regex-dev libgtest-dev lcov
+
+    - name: Build and Test
+      run: ./build-quick.sh --coverage  # Enable coverage for CI (tests are on by default)
+      shell: bash
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: libsstring-debug
+        path: |
+          ${{github.workspace}}/dist/libsstring_lib.a
+          ${{github.workspace}}/build/compile_commands.json
+        if-no-files-found: error
+
+    - name: Coverage Summary
+      if: success() && hashFiles('build/coverage.info') != ''
+      run: |
+        echo "## Coverage Summary" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        lcov --list build/coverage.info --rc branch_coverage=1 >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

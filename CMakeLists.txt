@@ -8,7 +8,7 @@ cmake_policy(SET CMP0042 NEW)  # MACOSX_RPATH is enabled by default
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" PROJECT_VERSION)
 string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
 
-project(SString VERSION ${PROJECT_VERSION} LANGUAGES CXX)
+project(MyCppLibrary VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
 # Output architecture information
 message(STATUS "Building for: ${CMAKE_SYSTEM_NAME} - ${CMAKE_SYSTEM_PROCESSOR}")
@@ -91,10 +91,10 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 set(CMAKE_INSTALL_RPATH "/usr/lib/x86_64-linux-gnu;/home/linuxbrew/.linuxbrew/lib")
 
 # Add the library
-add_library(sstring_lib
+add_library(mycpplibrary_lib
     src/fibonacci.cpp
 )
-target_include_directories(sstring_lib PUBLIC
+target_include_directories(mycpplibrary_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
@@ -109,19 +109,19 @@ if(MINGW)
         IMPORTED_LOCATION /usr/x86_64-w64-mingw32/lib/libboost_regex.a)
 
     # Add include directories for Boost
-    target_include_directories(sstring_lib PUBLIC
+    target_include_directories(mycpplibrary_lib PUBLIC
         /usr/x86_64-w64-mingw32/include
     )
 
     # Link with the custom-built Boost libraries
-    target_link_libraries(sstring_lib PUBLIC
+    target_link_libraries(mycpplibrary_lib PUBLIC
         boost_locale
         boost_regex
         -static-libgcc
         -static-libstdc++
     )
 else()
-    target_link_libraries(sstring_lib PUBLIC
+    target_link_libraries(mycpplibrary_lib PUBLIC
         Boost::locale
         Boost::regex
     )
@@ -129,7 +129,7 @@ endif()
 
 
 # Set library output directory to dist
-set_target_properties(sstring_lib PROPERTIES
+set_target_properties(mycpplibrary_lib PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../dist
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../dist
 )
@@ -143,18 +143,18 @@ if(BUILD_TESTING)
     pkg_check_modules(GTEST REQUIRED gtest)
 
     # Add tests
-    add_executable(sstring_tests
+    add_executable(mycpplibrary_tests
         tests/fibonacci_test.cpp
     )
-    target_include_directories(sstring_tests PRIVATE ${GTEST_INCLUDE_DIRS})
-    target_link_libraries(sstring_tests PRIVATE
-        sstring_lib
+    target_include_directories(mycpplibrary_tests PRIVATE ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(mycpplibrary_tests PRIVATE
+        mycpplibrary_lib
         ${GTEST_LIBRARIES}
         pthread
     )
     # Use GoogleTest module to discover tests
     include(GoogleTest)
-    gtest_discover_tests(sstring_tests)
+    gtest_discover_tests(mycpplibrary_tests)
 endif()
 
 # CPack configuration - set variables before including CPack
@@ -165,7 +165,7 @@ set(CPACK_PACKAGE_VERSION             "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_VENDOR              "NawaMan")
 set(CPACK_PACKAGE_CONTACT             "nawa@nawaman.net")
 set(CPACK_PACKAGE_DESCRIPTION_FILE    "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Simple String - A smart string library")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MyCppLibrary - A C++ library")
 
 # Package generators
 if(WIN32)
@@ -178,7 +178,7 @@ elseif(APPLE)
     # macOS package settings
     set(CPACK_OSX_PACKAGE_VERSION        "10.15")
     set(CPACK_PRODUCTBUILD_DOMAINS       true)
-    set(CPACK_PRODUCTBUILD_IDENTIFIER    "net.nawaman.sstring")
+    set(CPACK_PRODUCTBUILD_IDENTIFIER    "net.nawaman.mycpplibrary")
     set(CPACK_PRODUCTBUILD_RESOURCES_DIR "${CMAKE_SOURCE_DIR}/packaging/macos")
 else()
     set(CPACK_GENERATOR        "TGZ;DEB;RPM")
@@ -199,7 +199,7 @@ endif()
 include(CPack)
 
 # Installation configuration
-install(TARGETS sstring_lib
+install(TARGETS mycpplibrary_lib
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

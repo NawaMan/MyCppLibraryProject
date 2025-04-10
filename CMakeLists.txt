@@ -93,6 +93,7 @@ set(CMAKE_INSTALL_RPATH "/usr/lib/x86_64-linux-gnu;/home/linuxbrew/.linuxbrew/li
 # Add the library
 add_library(mycpplibrary_lib
     src/fibonacci.cpp
+    src/string_utils.cpp
 )
 target_include_directories(mycpplibrary_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -145,6 +146,7 @@ if(BUILD_TESTING)
     # Add tests
     add_executable(mycpplibrary_tests
         tests/fibonacci_test.cpp
+        tests/string_utils_test.cpp
     )
     target_include_directories(mycpplibrary_tests PRIVATE ${GTEST_INCLUDE_DIRS})
     target_link_libraries(mycpplibrary_tests PRIVATE

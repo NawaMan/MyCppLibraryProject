@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# build-release.sh: Release build script for Simple String library
+# build-release.sh: Release build script for MyCppLibrary
 # Builds release packages for multiple platforms using Docker
 
 set -e  # Exit on error
@@ -124,13 +124,13 @@ for platform in $PLATFORMS; do
     docker build --target    $platform          \
                  --build-arg VERSION=$VERSION   \
                  -f          config/Dockerfile  \
-                 -t          sstring-$platform-builder .
+                 -t          mycpplibrary-$platform-builder .
     
     # Run the build
     print_status "Running build for $platform..."
     docker run --rm \
         -v "$(pwd)/dist:/build/dist" \
-        sstring-$platform-builder ./docker-build.sh $platform $VERSION $GENERATE_LLVM_IR
+        mycpplibrary-$platform-builder ./docker-build.sh $platform $VERSION $GENERATE_LLVM_IR
 done
 
 print_section "Build Summary"

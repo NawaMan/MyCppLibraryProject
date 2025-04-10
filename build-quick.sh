@@ -135,7 +135,8 @@ cmake -DCMAKE_BUILD_TYPE=Debug             \
       -DBUILD_TESTING=${BUILD_TESTS}       \
       -DCMAKE_EXPORT_COMPILE_COMMANDS=ON   \
       -DENABLE_COVERAGE=${ENABLE_COVERAGE} \
-      ..
+      -B . \
+      -S ..
 
 # Build
 print_section "Building Project"

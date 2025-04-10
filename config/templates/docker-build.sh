@@ -31,7 +31,7 @@ case $PLATFORM in
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_TESTING=OFF \
               -DCMAKE_INSTALL_PREFIX=/usr \
-              -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Linux-x86_64-gcc" \
+              -DCPACK_PACKAGE_FILE_NAME="MyCppLibrary-${VERSION}-Linux-x86_64-gcc" \
               -DCPACK_SYSTEM_NAME="Linux-x86_64-gcc" \
               ..
         make -j$(nproc)
@@ -84,10 +84,10 @@ case $PLATFORM in
             cp -r /build/include/* /build/llvm-ir/include/
             
             # Create a tarball of the LLVM IR files
-            tar -czf "SString-${VERSION}-Linux-x86_64-gcc-llvm-ir.tar.gz" -C /build llvm-ir/
+            tar -czf "MyCppLibrary-${VERSION}-Linux-x86_64-gcc-llvm-ir.tar.gz" -C /build llvm-ir/
             
             # Copy the LLVM IR tarball to the dist directory
-            cp "SString-${VERSION}-Linux-x86_64-gcc-llvm-ir.tar.gz" "/build/dist/"
+            cp "MyCppLibrary-${VERSION}-Linux-x86_64-gcc-llvm-ir.tar.gz" "/build/dist/"
         fi
         
         cpack -G DEB
@@ -101,7 +101,7 @@ case $PLATFORM in
               -DBUILD_TESTING=OFF \
               -DCMAKE_INSTALL_PREFIX=/usr \
               -DCMAKE_TOOLCHAIN_FILE=../cmake/linux-x86_64-clang.cmake \
-              -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Linux-x86_64-clang" \
+              -DCPACK_PACKAGE_FILE_NAME="MyCppLibrary-${VERSION}-Linux-x86_64-clang" \
               -DCPACK_SYSTEM_NAME="Linux-x86_64-clang" \
               ..
         make -j$(nproc)
@@ -154,10 +154,10 @@ case $PLATFORM in
             cp -r /build/include/* /build/llvm-ir/include/
             
             # Create a tarball of the LLVM IR files
-            tar -czf "SString-${VERSION}-Linux-x86_64-clang-llvm-ir.tar.gz" -C /build llvm-ir/
+            tar -czf "MyCppLibrary-${VERSION}-Linux-x86_64-clang-llvm-ir.tar.gz" -C /build llvm-ir/
             
             # Copy the LLVM IR tarball to the dist directory
-            cp "SString-${VERSION}-Linux-x86_64-clang-llvm-ir.tar.gz" "/build/dist/"
+            cp "MyCppLibrary-${VERSION}-Linux-x86_64-clang-llvm-ir.tar.gz" "/build/dist/"
         fi
         
         cpack -G DEB
@@ -172,7 +172,7 @@ case $PLATFORM in
                   -DBUILD_TESTING=OFF \
                   -DCMAKE_INSTALL_PREFIX=/usr \
                   -DCMAKE_TOOLCHAIN_FILE=../cmake/linux-aarch64-gcc.cmake \
-                  -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Linux-aarch64-gcc" \
+                  -DCPACK_PACKAGE_FILE_NAME="MyCppLibrary-${VERSION}-Linux-aarch64-gcc" \
                   -DCPACK_SYSTEM_NAME="Linux-aarch64-gcc" \
                   ..
             make -j$(nproc)
@@ -191,7 +191,7 @@ case $PLATFORM in
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_TESTING=OFF \
               -DCMAKE_TOOLCHAIN_FILE=../cmake/windows-x86_64-mingw.cmake \
-              -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Windows-x86_64-mingw" \
+              -DCPACK_PACKAGE_FILE_NAME="MyCppLibrary-${VERSION}-Windows-x86_64-mingw" \
               -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
               ..
         make -j$(nproc)
@@ -204,31 +204,31 @@ case $PLATFORM in
               -DBOOST_INCLUDEDIR=/usr/x86_64-w64-mingw32/include \
               -DBOOST_LIBRARYDIR=/usr/x86_64-w64-mingw32/lib \
               -DBoost_USE_STATIC_LIBS=ON \
-              -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-Windows-x86_64-mingw" \
+              -DCPACK_PACKAGE_FILE_NAME="MyCppLibrary-${VERSION}-Windows-x86_64-mingw" \
               -DCPACK_SYSTEM_NAME="Windows-x86_64-mingw" \
               ..
         make -j$(nproc)
-        x86_64-w64-mingw32-strip bin/libsstring_lib.dll
+        x86_64-w64-mingw32-strip bin/libmycpplibrary_lib.dll
         
         # Copy DLL to a known location for packaging
         mkdir -p package_staging
-        cp bin/libsstring_lib.dll package_staging/
+        cp bin/libmycpplibrary_lib.dll package_staging/
         
         # Create MSI package
         cat > sstring.wxs << 'WXSEOF'
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
-    <Product Name='SString Library'
+    <Product Name='MyCppLibrary'
              Id='*'
              UpgradeCode='12345678-1234-1234-1234-123456789012'
              Language='1033'
              Codepage='1252'
              Version='${VERSION}'
-             Manufacturer='SString'>
+             Manufacturer='NawaMan'>
         <Package Id='*'
                  Keywords='Installer'
-                 Description='SString Library Installer'
-                 Manufacturer='SString'
+                 Description='MyCppLibrary Installer'
+                 Manufacturer='NawaMan'
                  InstallerVersion='100'
                  Languages='1033'
                  Compressed='yes'
@@ -238,12 +238,12 @@ case $PLATFORM in
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
             <Directory Id='ProgramFilesFolder' Name='PFiles'>
-                <Directory Id='SString' Name='SString'>
+                <Directory Id='MyCppLibrary' Name='MyCppLibrary'>
                     <Directory Id='INSTALLDIR' Name='.'>
                         <Component Id='MainLibrary' Guid='12345678-1234-1234-1234-123456789013'>
                             <File Id='LibraryDLL'
-                                  Name='sstring.dll'
-                                  Source='package_staging/libsstring_lib.dll'
+                                  Name='mycpplibrary.dll'
+                                  Source='package_staging/libmycpplibrary_lib.dll'
                                   KeyPath='yes'/>
                         </Component>
                     </Directory>
@@ -258,7 +258,7 @@ case $PLATFORM in
 </Wix>
 WXSEOF
 
-        wixl -v sstring.wxs -o "SString-${VERSION}-Windows-x86_64-mingw.msi"
+        wixl -v sstring.wxs -o "MyCppLibrary-${VERSION}-Windows-x86_64-mingw.msi"
         cd ..
         
         # Build for MSVC (if MSVC tools directory exists)
@@ -270,20 +270,20 @@ WXSEOF
             cd build-windows-msvc
             
             # Create a mock library file
-            echo "Mock MSVC library file" > Release/sstring_lib.lib
+            echo "Mock MSVC library file" > Release/mycpplibrary_lib.lib
             
             # Create ZIP package for MSVC build
             mkdir -p package/include package/lib
             cp ../include/*.hpp package/include/
-            cp Release/sstring_lib.lib package/lib/
+            cp Release/mycpplibrary_lib.lib package/lib/
             
             # Create ZIP archive
             cd package
-            zip -r "../SString-${VERSION}-Windows-x86_64-msvc.zip" *
+            zip -r "../MyCppLibrary-${VERSION}-Windows-x86_64-msvc.zip" *
             cd ..
             
             # Copy ZIP to dist directory
-            cp "SString-${VERSION}-Windows-x86_64-msvc.zip" /build/dist/
+            cp "MyCppLibrary-${VERSION}-Windows-x86_64-msvc.zip" /build/dist/
             
             cd ..
             echo "MSVC build completed successfully"
@@ -358,10 +358,10 @@ WXSEOF
                 mkdir -p /build/llvm-ir/include
                 cp -r /build/include/* /build/llvm-ir/include/
                 
-                tar -czf "SString-${VERSION}-Windows-x86_64-llvm-ir.tar.gz" -C /build llvm-ir/
+                tar -czf "MyCppLibrary-${VERSION}-Windows-x86_64-llvm-ir.tar.gz" -C /build llvm-ir/
                 
                 # Copy the LLVM IR tarball to the dist directory
-                cp "SString-${VERSION}-Windows-x86_64-llvm-ir.tar.gz" "/build/dist/"
+                cp "MyCppLibrary-${VERSION}-Windows-x86_64-llvm-ir.tar.gz" "/build/dist/"
                 echo "Windows LLVM IR package created successfully"
             else
                 echo "No LLVM IR files were generated for Windows"
@@ -378,7 +378,7 @@ WXSEOF
         cmake -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_TESTING=OFF \
               -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
-              -DCPACK_PACKAGE_FILE_NAME="SString-${VERSION}-macOS-universal" \
+              -DCPACK_PACKAGE_FILE_NAME="MyCppLibrary-${VERSION}-macOS-universal" \
               -DCPACK_SYSTEM_NAME="macOS-universal" \
               ..
         make -j$(nproc)
@@ -430,36 +430,32 @@ WXSEOF
             cp -r /build/include/* /build/llvm-ir/include/
             
             # Create a tarball of the LLVM IR files
-            tar -czf "SString-${VERSION}-macOS-universal-llvm-ir.tar.gz" -C /build llvm-ir/
+            tar -czf "MyCppLibrary-${VERSION}-macOS-universal-llvm-ir.tar.gz" -C /build llvm-ir/
             
             # Copy the LLVM IR tarball to the dist directory
-            cp "SString-${VERSION}-macOS-universal-llvm-ir.tar.gz" "/build/dist/"
+            cp "MyCppLibrary-${VERSION}-macOS-universal-llvm-ir.tar.gz" "/build/dist/"
         fi
         
         # Create PKG package
         mkdir -p pkg_root/usr/local/{lib,include}
-        cp /build/dist/libsstring_lib.a pkg_root/usr/local/lib/
-        cp /build/include/string.hpp pkg_root/usr/local/include/
-        cp /build/include/char.hpp pkg_root/usr/local/include/
-        cp /build/include/compare_result.hpp pkg_root/usr/local/include/
+        cp /build/dist/libmycpplibrary_lib.a pkg_root/usr/local/lib/
+        cp /build/include/fibonacci.hpp pkg_root/usr/local/include/
 
         fpm -s dir -t tar \
-            -n sstring \
+            -n mycpplibrary \
             -v "${VERSION}" \
-            --description "SString Library - A C++ string library with UTF-16 support" \
-            --url "https://github.com/NawaMan/SString" \
-            --vendor "SString" \
+            --description "MyCppLibrary - A C++ library" \
+            --url "https://github.com/NawaMan/MyCppLibrary" \
+            --vendor "NawaMan" \
             --license "MIT" \
             --maintainer "NawaMan" \
             --architecture universal \
             --prefix / \
             -C pkg_root \
-            usr/local/lib/libsstring_lib.a \
-            usr/local/include/string.hpp \
-            usr/local/include/char.hpp \
-            usr/local/include/compare_result.hpp
-        gzip -f sstring*.tar
-        mv sstring*.tar.gz "/build/dist/SString-${VERSION}-macOS-universal.tar.gz"
+            usr/local/lib/libmycpplibrary_lib.a \
+            usr/local/include/fibonacci.hpp
+        gzip -f mycpplibrary*.tar
+        mv mycpplibrary*.tar.gz "/build/dist/MyCppLibrary-${VERSION}-macOS-universal.tar.gz"
         cd ..
         ;;
 esac
@@ -469,13 +465,13 @@ mkdir -p /build/dist
 
 # Find and copy only release packages
 find . -type f \( \
-    -name "SString-*.tar.gz" -o \
-    -name "SString-*.deb" -o \
-    -name "SString-*.rpm" -o \
-    -name "SString-*.pkg" -o \
-    -name "SString-*.msi" -o \
-    -name "SString-*-llvm-ir.tar.gz" \
+    -name "MyCppLibrary-*.tar.gz" -o \
+    -name "MyCppLibrary-*.deb" -o \
+    -name "MyCppLibrary-*.rpm" -o \
+    -name "MyCppLibrary-*.pkg" -o \
+    -name "MyCppLibrary-*.msi" -o \
+    -name "MyCppLibrary-*-llvm-ir.tar.gz" \
 \) -exec cp {} /build/dist/ \;
 
 # Clean up any temporary files from package creation
-find /build/dist -type f ! -name "SString-*" -delete
+find /build/dist -type f ! -name "MyCppLibrary-*" -delete

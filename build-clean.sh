@@ -40,4 +40,14 @@ rm -f  compile_commands.json
 rm -f  cmake/mingw-w64-x86_64.cmake
 rm -f  cmake/windows-x86_64-msvc-cross.cmake
 
+# Remove CMake artifacts from project root
+print_section "Removing CMake artifacts"
+rm -f  CMakeCache.txt
+rm -rf CMakeFiles
+rm -f  cmake_install.cmake
+rm -f  Makefile
+rm -f  CTestTestfile.cmake
+rm -f  DartConfiguration.tcl
+rm -f  Testing
+
 echo -e "\n${GREEN}Build cleanup completed!${NC}"

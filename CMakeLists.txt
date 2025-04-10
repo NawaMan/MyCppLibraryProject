@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
+# Add custom module path
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # Set policies
 cmake_policy(SET CMP0048 NEW)  # project() command manages VERSION variables
 cmake_policy(SET CMP0042 NEW)  # MACOSX_RPATH is enabled by default
@@ -69,6 +72,20 @@ endif()
 # Find Boost
 find_package(Boost REQUIRED COMPONENTS locale regex)
 
+# ICU is optional for Windows builds
+if(WIN32 OR MINGW)
+    set(USE_ICU OFF)
+    message(STATUS "Building for Windows - ICU support disabled")
+else()
+    set(USE_ICU ON)
+    # Find ICU components
+    find_package(ICU REQUIRED COMPONENTS uc i18n data)
+    
+    # Set ICU include and library paths explicitly
+    set(ICU_INCLUDE_DIRS "/home/linuxbrew/.linuxbrew/include")
+    set(ICU_LIBRARIES "/home/linuxbrew/.linuxbrew/lib/libicui18n.so.77" "/home/linuxbrew/.linuxbrew/lib/libicuuc.so.77" "/home/linuxbrew/.linuxbrew/lib/libicudata.so.77")
+endif()
+
 # Set IMPORTED_LOCATION for Boost::locale
 if(TARGET Boost::locale)
     get_target_property(BOOST_LOCALE_LIB Boost::locale IMPORTED_LOCATION_RELEASE)
@@ -99,6 +116,10 @@ target_include_directories(mycpplibrary_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+if(USE_ICU)
+    target_include_directories(mycpplibrary_lib PUBLIC ${ICU_INCLUDE_DIRS})
+endif()
+
 if(MINGW)
     # Set up imported targets for custom-built Boost libraries
     add_library(boost_locale STATIC IMPORTED)
@@ -126,6 +147,10 @@ else()
         Boost::locale
         Boost::regex
     )
+    
+    if(USE_ICU)
+        target_link_libraries(mycpplibrary_lib PUBLIC ${ICU_LIBRARIES})
+    endif()
 endif()
 
 
@@ -154,6 +179,10 @@ if(BUILD_TESTING)
         ${GTEST_LIBRARIES}
         pthread
     )
+    
+    if(USE_ICU)
+        target_link_libraries(mycpplibrary_tests PRIVATE ${ICU_LIBRARIES})
+    endif()
     # Use GoogleTest module to discover tests
     include(GoogleTest)
     gtest_discover_tests(mycpplibrary_tests)
